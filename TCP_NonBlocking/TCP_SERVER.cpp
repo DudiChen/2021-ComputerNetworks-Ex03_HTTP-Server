@@ -653,7 +653,6 @@ string createGetAnswer(int index)
 {
 	string send = "";
 	fillHeaderToStruct(index);
-	cout << sockets[index].responsing->version << endl;
 	sockets[index].responsing->content_length = 0;
 	char readBuff[500];
 	string headersend = "";
@@ -735,8 +734,7 @@ string prepare(int index)
 	int current = 0;
 	string send = "";
 	char num[10];
-	send = send + sockets[index].responsing->version + " ";
-	send = send + sockets[index].responsing->status_code + "\n";
+	send = send + "HTTP 1.1" + " " + sockets[index].responsing->status_code + "\n";
 	if(sockets[index].responsing->connection==keep_alive)
 	{
 		send = send + "Connection" + " " + "keep-alive" + "\n";
