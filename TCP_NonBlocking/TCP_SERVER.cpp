@@ -845,7 +845,7 @@ void WriteToFile(int index,char*buffBody)
 	string body;
 	int count = 0;
 	ofstream myfile;
-	myfile.open(sockets[index].requesting->resource_path);
+	myfile.open(sockets[index].requesting->resource_path,ios::app);
 	myfile << endl;
 	while(count<sockets[index].requesting->linebody)
 	{
