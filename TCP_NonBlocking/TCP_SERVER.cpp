@@ -608,37 +608,33 @@ int ConvertStringToInt(char str[])
 }
 void sendMessage(int index)
 {
+	int bytesSent = 0;
 	string sendbuffer="";
+	int buffer_len = 0;
+	SOCKET msgSocket = sockets[index].id;
 	sockets[index].lastUsed = time(0);
 	switch (sockets[index].requesting->contentType)
 	{
 	case GET:
 		sendbuffer=createGetAnswer(index);
-		cout << sendbuffer;
 		break;
 	case POST:
 		sendbuffer=createPostAnswer(index);
-		cout << sendbuffer;
 		break;
 	case PUT:
 		sendbuffer = createPutAnswer(index);
-		cout << sendbuffer;
 		break;
 	case HEAD: 
 		sendbuffer = createHeadAnswer(index);
-		cout << sendbuffer;
 		break;
 	case OPTIONS:
 		sendbuffer= createOptionsAnswer(index);
-		cout << sendbuffer;
 		break;
 	case _DELETE:
 		sendbuffer = CreateDeleteAnswer(index);
-		cout << sendbuffer;
 		break;
 	case TRACE:
 		sendbuffer = createTraceAnswer(index);
-		cout << sendbuffer;
 		break;
 
 
@@ -646,7 +642,23 @@ void sendMessage(int index)
 
 
 	}
+	buffer_len = sendbuffer.size();
+	bytesSent = send(msgSocket, sendbuffer.c_str(), buffer_len, 0);
+	memset(sockets[index].buffer, 0, 10000);
+	sockets[index].len = 0;
+	if (SOCKET_ERROR == bytesSent)
+	{
+		cout << "HTTP Server: Error at S_SEND(): " << WSAGetLastError() << endl;
+		sockets[index].send = IDLE;
+		return;
+	}
+
+	cout << "HTTP Server: Sent: " << bytesSent << "\\" << buffer_len << " bytes of " << endl;
+	cout << "\"" << sendbuffer.c_str() << "\"" << endl << "message." << endl;
+	sockets[index].send = IDLE;
 	removeSocket(index);
+	return;
+	
 	
 }
 string createGetAnswer(int index)
