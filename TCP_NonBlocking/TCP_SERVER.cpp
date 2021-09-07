@@ -644,23 +644,29 @@ void sendMessage(int index)
 
 
 	}
-	buffer_len = sendbuffer.size();
-	bytesSent = send(msgSocket, sendbuffer.c_str(), buffer_len, 0);
-	memset(sockets[index].buffer, 0, 10000);
-	sockets[index].len = 0;
-	if (SOCKET_ERROR == bytesSent)
+	if(sockets[index].requesting->contentType==POST)
 	{
-		cout << "HTTP Server: Error at S_SEND(): " << WSAGetLastError() << endl;
+		cout << sendbuffer << endl;
+	}
+	else
+	{
+		buffer_len = sendbuffer.size();
+		bytesSent = send(msgSocket, sendbuffer.c_str(), buffer_len, 0);
+		memset(sockets[index].buffer, 0, 10000);
+		sockets[index].len = 0;
+		if (SOCKET_ERROR == bytesSent)
+		{
+			cout << "HTTP Server: Error at S_SEND(): " << WSAGetLastError() << endl;
+			sockets[index].send = IDLE;
+			return;
+		}
+
+		cout << "HTTP Server: Sent: " << bytesSent << "\\" << buffer_len << " bytes of " << endl;
+		cout << "\"" << sendbuffer.c_str() << "\"" << endl << "message." << endl;
 		sockets[index].send = IDLE;
+		removeSocket(index);
 		return;
 	}
-
-	cout << "HTTP Server: Sent: " << bytesSent << "\\" << buffer_len << " bytes of " << endl;
-	cout << "\"" << sendbuffer.c_str() << "\"" << endl << "message." << endl;
-	sockets[index].send = IDLE;
-	removeSocket(index);
-	return;
-	
 	
 }
 string createGetAnswer(int index)
