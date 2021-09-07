@@ -269,17 +269,6 @@ void receiveMessage(int index)
 			fillRequestHeaderMethod(sockets[index].requesting, &sockets[index].buffer[len], index);
 			fillheadersandbody(sockets[index].requesting, &sockets[index].buffer[len]);
 			createRequestInfo(sockets[index].requesting, &sockets[index].buffer[len]);
-			cout << sockets[index].requesting->contentType << endl;
-			cout << sockets[index].requesting->acceptType << endl;
-			cout << sockets[index].requesting->accepted_language << endl;
-			cout << sockets[index].requesting->body_message << endl;
-			cout << sockets[index].requesting->connectType << endl;
-			cout << sockets[index].requesting->resource_path << endl;
-			cout << sockets[index].requesting->content_length << endl;
-			cout << sockets[index].requesting->version << endl;
-			cout << sockets[index].requesting->linebody << endl;
-			cout << sockets[index].requesting->fullpath << endl;
-			cout << strlen(sockets[index].requesting->body_message)<<endl;
 
 		}
 	}
@@ -444,6 +433,7 @@ void updatefullPath(request_info*requ,int index)
 }
 void fillheadersandbody(request_info*requ, char*buff)
 {
+	int foundType = 0;
 	bool found = false;
 	int count = countLines(buff);
 	int indexLine = 0;
@@ -493,12 +483,11 @@ void fillheadersandbody(request_info*requ, char*buff)
 			str2[0] = '\0';
 
 		}
-		if (strcmp(str, "Accept") == 0)
+		if ((strcmp(str, "Accept") == 0)&&foundType==0)
 		{
-			int indexescomma = header.find(',');
 			j = indexes + 2;
 			p = 0;
-			while (j<indexescomma)
+			while (header[j]!=','&&header[j]!='\0')
 			{
 				str2[p] = header[j];
 				p++;
@@ -507,6 +496,19 @@ void fillheadersandbody(request_info*requ, char*buff)
 			str2[p] = '\0';
 			strcpy(requ->acceptType, str2);
 			str2[0] = '\0';
+		}
+		if (strcmp(str, "Content-Type") == 0)
+		{
+			j = indexes + 2;
+			p = 0;
+			while (header[j] != '\0')
+			{
+				requ->acceptType[p] = header[j];
+				p++;
+				j++;
+			}
+			requ->acceptType[p] = '\0';
+			foundType = 1;
 		}
 		if (strcmp(str, "Content-Length") == 0)
 		{
@@ -642,23 +644,29 @@ void sendMessage(int index)
 
 
 	}
-	buffer_len = sendbuffer.size();
-	bytesSent = send(msgSocket, sendbuffer.c_str(), buffer_len, 0);
-	memset(sockets[index].buffer, 0, 10000);
-	sockets[index].len = 0;
-	if (SOCKET_ERROR == bytesSent)
+	if(sockets[index].requesting->contentType==POST)
 	{
-		cout << "HTTP Server: Error at S_SEND(): " << WSAGetLastError() << endl;
+		cout << sendbuffer << endl;
+	}
+	else
+	{
+		buffer_len = sendbuffer.size();
+		bytesSent = send(msgSocket, sendbuffer.c_str(), buffer_len, 0);
+		memset(sockets[index].buffer, 0, 10000);
+		sockets[index].len = 0;
+		if (SOCKET_ERROR == bytesSent)
+		{
+			cout << "HTTP Server: Error at S_SEND(): " << WSAGetLastError() << endl;
+			sockets[index].send = IDLE;
+			return;
+		}
+
+		cout << "HTTP Server: Sent: " << bytesSent << "\\" << buffer_len << " bytes of " << endl;
+		cout << "\"" << sendbuffer.c_str() << "\"" << endl << "message." << endl;
 		sockets[index].send = IDLE;
+		removeSocket(index);
 		return;
 	}
-
-	cout << "HTTP Server: Sent: " << bytesSent << "\\" << buffer_len << " bytes of " << endl;
-	cout << "\"" << sendbuffer.c_str() << "\"" << endl << "message." << endl;
-	sockets[index].send = IDLE;
-	removeSocket(index);
-	return;
-	
 	
 }
 string createGetAnswer(int index)
@@ -937,8 +945,7 @@ string prepareWithOptions(int index)
 {
 	string send = "";
 	char num[10];
-	send = send + sockets[index].responsing->version + " ";
-	send = send + sockets[index].responsing->status_code + "\n";
+	send = send + "HTTP 1.1" + " " + sockets[index].responsing->status_code + "\n";
 	send = send + "Allow: OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE" + "\n";
 	if (sockets[index].responsing->connection == keep_alive)
 	{
@@ -952,7 +959,10 @@ string prepareWithOptions(int index)
 	int digcount = countdigits(sockets[index].responsing->content_length);
 	convertIntToString(num, sockets[index].responsing->content_length, digcount);
 	send = send + "Content-Length: " + num + "\n";
-	send = send + "Content-Type: " + sockets[index].responsing->accpettype;
+	if (sockets[index].requesting->acceptType[0] != '\0')
+		send = send + "Content-Type: " + sockets[index].responsing->accpettype;
+	else
+		send = send + "Content-Type: " + "text/html";
 	return send;
 }
 string CreateDeleteAnswer(int index)
@@ -1026,13 +1036,13 @@ string createTraceAnswer(int index)
 	if(sockets[index].requesting->body_message[0]=='\0')
 	{
 		sockets[index].responsing->content_length = 0;
-		strcpy(sockets[index].responsing->status_code, "200 OK");
+		strcpy(sockets[index].responsing->status_code, "200 OK There no body");
 		send = prepare(index);
 	}
 	else
 	{
 		sockets[index].responsing->content_length = strlen(sockets[index].requesting->body_message);
-		strcpy(sockets[index].responsing->status_code, "400 HAVE A BODY IN REQUEST");
+		strcpy(sockets[index].responsing->status_code, "200 OK HAVE A BODY IN REQUEST");
 		send = prepare(index);
 	}
 	send = send + "\n";
