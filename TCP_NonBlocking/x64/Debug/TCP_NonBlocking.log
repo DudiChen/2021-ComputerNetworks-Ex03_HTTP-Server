@@ -6,12 +6,12 @@ c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(366): warning C42
 c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(369): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(456): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(602): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(647): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(698): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(840): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(903): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(930): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(1013): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(1038): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(656): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(707): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(849): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(912): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(939): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(1022): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\targil_3_computer_connection\tcp_nonblocking\tcp_server.cpp(1047): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   TCP_NonBlocking.vcxproj -> C:\targil_3_Computer_Connection\x64\Debug\TCP_NonBlocking.exe
   TCP_NonBlocking.vcxproj -> C:\targil_3_Computer_Connection\x64\Debug\TCP_NonBlocking.pdb (Partial PDB)
