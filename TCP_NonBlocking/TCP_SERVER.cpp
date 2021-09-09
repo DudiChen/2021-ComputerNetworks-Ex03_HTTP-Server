@@ -647,6 +647,9 @@ void sendMessage(int index)
 	if(sockets[index].requesting->contentType==POST)
 	{
 		cout << sendbuffer << endl;
+		sockets[index].send = IDLE;
+		removeSocket(index);
+		return;
 	}
 	else
 	{
