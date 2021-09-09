@@ -110,3 +110,4 @@ void updatefullPath(request_info*requ, int index);
 int checkstat(char*buff);
 void createRequestInfo(request_info*requ, char*buff);
 string createTraceAnswer(int index);
+bool validateContentType(char* contentType);

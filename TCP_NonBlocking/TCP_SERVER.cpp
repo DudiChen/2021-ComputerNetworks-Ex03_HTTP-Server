@@ -269,7 +269,6 @@ void receiveMessage(int index)
 			fillRequestHeaderMethod(sockets[index].requesting, &sockets[index].buffer[len], index);
 			fillheadersandbody(sockets[index].requesting, &sockets[index].buffer[len]);
 			createRequestInfo(sockets[index].requesting, &sockets[index].buffer[len]);
-
 		}
 	}
 }
@@ -690,35 +689,47 @@ string createGetAnswer(int index)
 		strcpy(buffer, sockets[index].requesting->fullpath);
 	else
 		strcpy(buffer, sockets[index].requesting->resource_path);
-	file.open(buffer);
-	if (file.is_open() == false)
-	{
-		strcpy(sockets[index].responsing->status_code, "404 NOT FOUND");
-		headersend=prepare(index);
+	// VALIDATE CONTENT TYPE
+	bool isValidContetntType = validateContentType(sockets[index].requesting->acceptType);
+	if (!isValidContetntType) {
+		strcpy(sockets[index].responsing->status_code, "415 Unsupported Media");
+		headersend = prepare(index);
 		send = headersend;
-	
-
 	}
-	else
-	{
-		strcpy(sockets[index].responsing->status_code, "200 OK");
-		while(file.getline(readBuff,512))
+	else {
+		file.open(buffer);
+		if (file.is_open() == false)
 		{
-			sockets[index].responsing->content_length = sockets[index].responsing->content_length + strlen(readBuff);
-			bodyMessage = bodyMessage + readBuff;
-			bodyMessage = bodyMessage + "\n";
+			strcpy(sockets[index].responsing->status_code, "404 NOT FOUND");
+			headersend = prepare(index);
+			send = headersend;
+		}
+		else
+		{
+			strcpy(sockets[index].responsing->status_code, "200 OK");
+			while (file.getline(readBuff, 512))
+			{
+				sockets[index].responsing->content_length = sockets[index].responsing->content_length + strlen(readBuff);
+				bodyMessage = bodyMessage + readBuff;
+				bodyMessage = bodyMessage + "\n";
+
+			}
+			headersend = prepare(index);
+			headersend = headersend + "\n";
+			send = headersend + bodyMessage;
+			file.close();
+
 
 		}
-		headersend = prepare(index);
-		headersend = headersend + "\n";
-		send = headersend + bodyMessage;
-		file.close();
-
-		
 	}
 	return send;
 
 }
+
+bool validateContentType(char* contentType) {
+	return strcmp(contentType, "text/html") == 0;
+}
+
 int checkstat(char*buff)
 {
 	ifstream file;
@@ -770,13 +781,10 @@ string prepare(int index)
 	int digcount = countdigits(sockets[index].responsing->content_length);
 	convertIntToString(num, sockets[index].responsing->content_length, digcount);
 	send = send + "Content-Length: " + num + "\n";
-	if (sockets[index].requesting->acceptType[0] != '\0')
-		send = send + "Content-Type: " + sockets[index].responsing->accpettype;
-	else
-		send = send + "Content-Type: " + "text/html";
+	send = send + "Content-Type: " + sockets[index].responsing->accpettype;
 	return send;
-
 }
+
 int countdigits(int number)
 {
 	int count = 0;
@@ -825,11 +833,19 @@ string createPostAnswer(int index)
 	fillHeaderToStruct(index);
 	sockets[index].responsing->content_length = 0;
 	sockets[index].responsing->status_code = new char[30];
-	checkStatusCode(index);
-	WriteToFile(index, sockets[index].requesting->body_message);
+	bool isValidContentType = validateContentType(sockets[index].responsing->accpettype);
+	if (isValidContentType) {
+		checkStatusCode(index);
+		WriteToFile(index, sockets[index].requesting->body_message);
+	}
+	else {
+		strcpy(sockets[index].responsing->status_code, "415 Unsupported Media");
+	}
+	
 	send = prepare(index);
 	return send;
 }
+
 void checkStatusCode(int index)
 {
 	ifstream file;
@@ -885,8 +901,15 @@ string createPutAnswer(int index)
 	fillHeaderToStruct(index);
 	sockets[index].responsing->content_length = 0;
 	sockets[index].responsing->status_code = new char[30];
-	checkStatusCode(index);
-	WriteToFile(index, sockets[index].requesting->body_message);
+	bool isValidContentType = validateContentType(sockets[index].responsing->accpettype);
+	if (isValidContentType) {
+		checkStatusCode(index);
+		WriteToFile(index, sockets[index].requesting->body_message);
+	}
+	else {
+		strcpy(sockets[index].responsing->status_code, "415 Unsupported Media");
+	}
+	
 	send = prepare(index);
 	return send;
 }
@@ -898,22 +921,29 @@ string createHeadAnswer(int index)
 	sockets[index].responsing->content_length = 0;
 	char readBuff[500];
 	sockets[index].responsing->status_code = new char[30];
-	file.open(sockets[index].requesting->resource_path);
-	if(file.is_open()==false)
-	{
-		strcpy(sockets[index].responsing->status_code, "404 NOT FOUND");
-		send = prepare(index);
-	}
-	else
-	{
-		strcpy(sockets[index].responsing->status_code, "200 OK");
-		while (file.getline(readBuff, 512))
+
+	bool isValidContentType = validateContentType(sockets[index].responsing->accpettype);
+	if (isValidContentType) {
+		file.open(sockets[index].requesting->resource_path);
+		if (file.is_open() == false)
 		{
-			sockets[index].responsing->content_length = sockets[index].responsing->content_length + strlen(readBuff);
+			strcpy(sockets[index].responsing->status_code, "404 NOT FOUND");
 		}
-		send = prepare(index);
-		file.close();
+		else
+		{
+			strcpy(sockets[index].responsing->status_code, "200 OK");
+			while (file.getline(readBuff, 512))
+			{
+				sockets[index].responsing->content_length = sockets[index].responsing->content_length + strlen(readBuff);
+			}
+			file.close();
+		}
 	}
+	else {
+		strcpy(sockets[index].responsing->status_code, "415 Unsupported Media");
+	}
+
+	send = prepare(index);
 	return send;
 }
 string createOptionsAnswer(int index)
@@ -924,25 +954,32 @@ string createOptionsAnswer(int index)
 	sockets[index].responsing->content_length = 0;
 	char readBuff[500];
 	sockets[index].responsing->status_code = new char[30];
-	file.open(sockets[index].requesting->resource_path);
-	if (file.is_open() == false)
-	{
-		strcpy(sockets[index].responsing->status_code, "404 NOT FOUND");
-	   send=prepare(index);
 
-	}
-	else
-	{
-		strcpy(sockets[index].responsing->status_code, "200 OK");
-		while(file.getline(readBuff,512))
+	bool isValidContentType = validateContentType(sockets[index].responsing->accpettype);
+	if (isValidContentType) {
+		file.open(sockets[index].requesting->resource_path);
+		if (file.is_open() == false)
 		{
-			sockets[index].responsing->content_length = sockets[index].responsing->content_length + strlen(readBuff);
+			strcpy(sockets[index].responsing->status_code, "404 NOT FOUND");
+			send = prepare(index);
+
 		}
-		send = prepareWithOptions(index);
-
+		else
+		{
+			strcpy(sockets[index].responsing->status_code, "200 OK");
+			while (file.getline(readBuff, 512))
+			{
+				sockets[index].responsing->content_length = sockets[index].responsing->content_length + strlen(readBuff);
+			}
+			send = prepareWithOptions(index);
+		}
 	}
+	else {
+		strcpy(sockets[index].responsing->status_code, "415 Unsupported Media");
+		send = prepare(index);
+	}
+	
 	return send;
-
 }
 string prepareWithOptions(int index)
 {
@@ -975,31 +1012,33 @@ string CreateDeleteAnswer(int index)
 	fillHeaderToStruct(index);
 	sockets[index].responsing->status_code = new char[50];
 	sockets[index].responsing->content_length = 0;
-	int status = statusCode(index);
-	
-	if(status==2||(status==3))
-	{
-		if(remove(sockets[index].requesting->resource_path)!=0)
+	bool isValidContentType = validateContentType(sockets[index].responsing->accpettype);
+	if (isValidContentType) {
+		int status = statusCode(index);
+
+		if (status == 2 || (status == 3)) // File exists
 		{
-			status = 1;
+			if (remove(sockets[index].requesting->resource_path) != 0)
+			{
+				status = 1;
+			}
+
 		}
-	
+		if (status == 1) // Couldn't perform file deletion
+		{
+			strcpy(sockets[index].responsing->status_code, "500 Internal Server Error");
+			send = prepare(index);
+		}
+		if (status == 2 || status == 3)
+		{
+			strcpy(sockets[index].responsing->status_code, "200 OK");
+			send = prepare(index);
+		}
 	}
-	if(status==1)
-	{
-		strcpy(sockets[index].responsing->status_code, "202 FILE NOT SUCCESSFULLY DELETED");
-		send = prepare(index);
+	else {
+		strcpy(sockets[index].responsing->status_code, "415 Unsupported Media");
 	}
-	if(status==2)
-	{
-		strcpy(sockets[index].responsing->status_code, "204 NO CONTENT");
-		send = prepare(index);
-	}
-	if(status==3)
-	{
-		strcpy(sockets[index].responsing->status_code, "200 OK");
-		send = prepare(index);
-	}
+
 	return send;
 
 }
@@ -1012,7 +1051,7 @@ int statusCode(int index)
 	int status = 0;
 	file.open(sockets[index].requesting->resource_path);
 	if(file.is_open()==false)
-	{
+	{ // File does not exist or is invalid
 		status = 1;
 	}
 	else
@@ -1022,9 +1061,9 @@ int statusCode(int index)
 			sockets[index].responsing->content_length = sockets[index].responsing->content_length + strlen(readBuff);
 			count++;
 		}
-		if (count == 0)
+		if (count == 0) // File exists but is empty
 			status = 2;
-		else
+		else // File exists and has content
 			status = 3;
 		file.close();
 	}
