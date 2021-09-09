@@ -727,7 +727,7 @@ string createGetAnswer(int index)
 }
 
 bool validateContentType(char* contentType) {
-	return strcmp(contentType, "text/html") == 0;
+	return strncmp(contentType, "text/html", 9) == 0;
 }
 
 int checkstat(char*buff)
@@ -1027,18 +1027,17 @@ string CreateDeleteAnswer(int index)
 		if (status == 1) // Couldn't perform file deletion
 		{
 			strcpy(sockets[index].responsing->status_code, "500 Internal Server Error");
-			send = prepare(index);
 		}
 		if (status == 2 || status == 3)
 		{
 			strcpy(sockets[index].responsing->status_code, "200 OK");
-			send = prepare(index);
 		}
 	}
 	else {
 		strcpy(sockets[index].responsing->status_code, "415 Unsupported Media");
 	}
 
+	send = prepare(index);
 	return send;
 
 }

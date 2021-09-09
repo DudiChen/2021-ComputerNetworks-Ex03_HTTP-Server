@@ -11,6 +11,6 @@ C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TC
 C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TCP_SERVER.cpp(865,108): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TCP_SERVER.cpp(937,109): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TCP_SERVER.cpp(972,109): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TCP_SERVER.cpp(1061,108): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TCP_SERVER.cpp(1086,94): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TCP_SERVER.cpp(1060,108): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\TCP_NonBlocking\TCP_SERVER.cpp(1085,94): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   TCP_NonBlocking.vcxproj -> C:\Users\dudi_\source\repos\ComputerNetworks-Ex03_HTTP-Server\x64\Debug\TCP_NonBlocking.exe
